@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, font
+from tkinter import messagebox, font, filedialog
 import importlib
 import sys
 import re
@@ -9,6 +9,26 @@ from weibo import settings
 
 # Import settings module
 sys.path.insert(0, '../settings.py')  # replace with the path to your settings.py
+
+def select_directory(label):
+    # 打开文件夹对话框，让用户选择一个文件夹
+    directory_path = filedialog.askdirectory()
+
+    # 将用户选择的文件夹路径显示在Label组件中
+    label.config(text=directory_path)
+
+    # 读取settings.py文件
+    with open('../settings.py', 'r',encoding='utf-8') as file:
+        lines = file.readlines()
+
+    # 修改IMAGES_STORE的值
+    for i, line in enumerate(lines):
+        if 'IMAGES_STORE' in line:
+            lines[i] = 'IMAGES_STORE = \'{}\'\n'.format(directory_path)
+
+    # 将修改后的配置写回settings.py文件
+    with open('../settings.py', 'w',encoding='utf-8') as file:
+        file.writelines(lines)
 
 def save_settings():
     with open('../settings.py', 'r', encoding='utf-8') as f:
@@ -43,6 +63,26 @@ def save_settings():
                     else:
                         line = re.sub(r"#?\s*'{}': \d+".format(pipeline), '#    \'{}\': 1'.format(pipeline), line)
             f.write(line)
+    mysql_host = mysql_entries[0][0].get()
+    mysql_port = mysql_entries[1][0].get()
+    mysql_user = mysql_entries[2][0].get()
+    mysql_password = mysql_entries[3][0].get()
+    mysql_database = mysql_entries[4][0].get()
+    with open('../settings.py', 'r',encoding='utf-8') as file:
+        lines = file.readlines()
+    for i, line in enumerate(lines):
+        if 'MYSQL_HOST' in line:
+            lines[i] = f"MYSQL_HOST = '{mysql_host}'\n"
+        elif 'MYSQL_PORT' in line:
+            lines[i] = f"MYSQL_PORT = {mysql_port}\n"
+        elif 'MYSQL_USER' in line:
+            lines[i] = f"MYSQL_USER = '{mysql_user}'\n"
+        elif 'MYSQL_PASSWORD' in line:
+            lines[i] = f"MYSQL_PASSWORD = '{mysql_password}'\n"
+        elif 'MYSQL_DATABASE' in line:
+            lines[i] = f"MYSQL_DATABASE = '{mysql_database}'\n"
+    with open('../settings.py', 'w',encoding='utf-8') as file:
+        file.writelines(lines)
 
     importlib.reload(settings)  # Reload the settings module
     messagebox.showinfo("Info", "Settings saved")
@@ -52,7 +92,7 @@ def save_settings():
 
 root = tk.Tk()
 root.title("Settings")
-root.geometry("900x500")
+root.geometry("1500x500")
 my_font = font.Font(family="Arial", size=14)
 
 DOWNLOAD_DELAY_frame = tk.Frame(root)
@@ -143,7 +183,6 @@ pipelines = [
     'weibo.pipelines.MysqlPipeline',
     'weibo.pipelines.MongoPipeline',
     'weibo.pipelines.MyImagesPipeline',
-    # 'weibo.pipelines.MyVideoPipeline'
 ]
 
 pipeline_entries = []
@@ -159,12 +198,49 @@ for pipeline in pipelines:
     entry.grid(row=row, column=1, sticky="ew")
     entry.grid_remove()  # Initially hide the entry
 
-    def show_entry(var=var, pipeline=pipeline, entry=entry):  # Use default arguments to capture the current pipeline and entry
+    label = tk.Label(root, text="", font=my_font)
+    label.grid(row=row, column=2, sticky="ew")
+    label.grid_remove()  # Initially hide the label
+
+    button = tk.Button(root, text="选择文件夹", command=lambda: select_directory(label))
+    button.grid(row=row, column=3, sticky="ew")
+    button.grid_remove()  # Initially hide the button
+
+    # Create five entries for 'weibo.pipelines.CsvPipeline'
+    if pipeline == 'weibo.pipelines.MysqlPipeline':
+        mysql_entries = []
+        for i, mysql_label in enumerate(['MYSQL_HOST', 'MYSQL_PORT', 'MYSQL_USER', 'MYSQL_PASSWORD', 'MYSQL_DATABASE']):
+            label = tk.Label(root, text=mysql_label, font=my_font)
+            label.grid(row=row + i + 1, column=1, sticky="w")  # Change column to 1
+            label.grid_remove()  # Initially hide the label
+            mysql_entry = tk.Entry(root, font=my_font)
+            mysql_entry.grid(row=row + i + 1, column=2, sticky="ew")  # Change column to 2
+            mysql_entry.grid_remove()  # Initially hide the entry
+            mysql_entries.append((mysql_entry, label))
+
+
+    def show_entry(var=var, pipeline=pipeline, entry=entry, button=button,
+                   label=label):  # Use default arguments to capture the current pipeline, entry, button and label
         if var.get():
             entry.grid()  # Show the entry when the checkbox is checked
+            if pipeline == 'weibo.pipelines.MyImagesPipeline':
+                button.grid()  # Show the button when the specific checkbox is checked
+                label.grid()  # Show the label when the specific checkbox is checked
+            # Show the five entries and their labels when the 'weibo.pipelines.CsvPipeline' checkbox is checked
+            if pipeline == 'weibo.pipelines.MysqlPipeline':
+                for mysql_entry, mysql_label in mysql_entries:
+                    mysql_entry.grid()
+                    mysql_label.grid()
             pipeline_entries.append((pipeline, entry))
         else:
             entry.grid_remove()  # Hide the entry when the checkbox is unchecked
+            button.grid_remove()  # Hide the button when the checkbox is unchecked
+            label.grid_remove()  # Hide the label when the checkbox is unchecked
+            # Hide the five entries and their labels when the 'weibo.pipelines.CsvPipeline' checkbox is unchecked
+            if pipeline == 'weibo.pipelines.MysqlPipeline':
+                for mysql_entry, mysql_label in mysql_entries:
+                    mysql_entry.grid_remove()
+                    mysql_label.grid_remove()
             if (pipeline, entry) in pipeline_entries:
                 pipeline_entries.remove((pipeline, entry))
 
