@@ -3,6 +3,7 @@ from tkinter import messagebox, font, filedialog
 import importlib
 import sys
 import re
+import subprocess
 import datetime
 from tkcalendar import DateEntry
 from weibo import settings
@@ -29,7 +30,16 @@ def select_directory(label):
     # 将修改后的配置写回settings.py文件
     with open('../settings.py', 'w',encoding='utf-8') as file:
         file.writelines(lines)
-
+'''
+def execute_commands():
+    # List of commands to execute
+    commands = [
+        'scrapy crawl search -s JOBDIR=crawls/search',
+    ]
+    # Execute each command
+    for command in commands:
+        subprocess.Popen(command, shell=True, cwd='../spiders/', creationflags=subprocess.CREATE_NEW_PROCESS_GROUP)
+'''
 def save_settings():
     with open('../settings.py', 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -63,26 +73,27 @@ def save_settings():
                     else:
                         line = re.sub(r"#?\s*'{}': \d+".format(pipeline), '#    \'{}\': 1'.format(pipeline), line)
             f.write(line)
-    mysql_host = mysql_entries[0][0].get()
-    mysql_port = mysql_entries[1][0].get()
-    mysql_user = mysql_entries[2][0].get()
-    mysql_password = mysql_entries[3][0].get()
-    mysql_database = mysql_entries[4][0].get()
-    with open('../settings.py', 'r',encoding='utf-8') as file:
-        lines = file.readlines()
-    for i, line in enumerate(lines):
-        if 'MYSQL_HOST' in line:
-            lines[i] = f"MYSQL_HOST = '{mysql_host}'\n"
-        elif 'MYSQL_PORT' in line:
-            lines[i] = f"MYSQL_PORT = {mysql_port}\n"
-        elif 'MYSQL_USER' in line:
-            lines[i] = f"MYSQL_USER = '{mysql_user}'\n"
-        elif 'MYSQL_PASSWORD' in line:
-            lines[i] = f"MYSQL_PASSWORD = '{mysql_password}'\n"
-        elif 'MYSQL_DATABASE' in line:
-            lines[i] = f"MYSQL_DATABASE = '{mysql_database}'\n"
-    with open('../settings.py', 'w',encoding='utf-8') as file:
-        file.writelines(lines)
+    if var_dict['weibo.pipelines.MysqlPipeline'].get():
+        mysql_host = mysql_entries[0][0].get()
+        mysql_port = mysql_entries[1][0].get()
+        mysql_user = mysql_entries[2][0].get()
+        mysql_password = mysql_entries[3][0].get()
+        mysql_database = mysql_entries[4][0].get()
+        with open('../settings.py', 'r',encoding='utf-8') as file:
+            lines = file.readlines()
+        for i, line in enumerate(lines):
+            if 'MYSQL_HOST' in line:
+                lines[i] = f"MYSQL_HOST = '{mysql_host}'\n"
+            elif 'MYSQL_PORT' in line:
+                lines[i] = f"MYSQL_PORT = {mysql_port}\n"
+            elif 'MYSQL_USER' in line:
+                lines[i] = f"MYSQL_USER = '{mysql_user}'\n"
+            elif 'MYSQL_PASSWORD' in line:
+                lines[i] = f"MYSQL_PASSWORD = '{mysql_password}'\n"
+            elif 'MYSQL_DATABASE' in line:
+                lines[i] = f"MYSQL_DATABASE = '{mysql_database}'\n"
+        with open('../settings.py', 'w',encoding='utf-8') as file:
+            file.writelines(lines)
 
     importlib.reload(settings)  # Reload the settings module
     messagebox.showinfo("Info", "Settings saved")
@@ -250,5 +261,6 @@ for pipeline in pipelines:
 
 button = tk.Button(root, text="Save", command=save_settings)
 button.grid(row=row, column=0, columnspan=2)
-
+# execute_button = tk.Button(root, text="Execute Commands", command=execute_commands)
+# execute_button.grid(row=row, column=1, columnspan=2)  # Adjust the row and column as needed
 root.mainloop()
