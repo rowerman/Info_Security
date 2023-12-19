@@ -5,6 +5,8 @@
 # Don't forget to add your pipeline to the ITEM_PIPELINES setting
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
+from .settings import keywords
+
 import copy
 import csv
 import os
@@ -134,7 +136,7 @@ class MysqlPipeline(object):
     def create_table(self):
         """创建MySQL表"""
         sql = """
-                CREATE TABLE IF NOT EXISTS weibo (
+                CREATE TABLE IF NOT EXISTS {} (
                 id varchar(20) NOT NULL,
                 bid varchar(12) NOT NULL,
                 user_id varchar(20),
@@ -154,7 +156,7 @@ class MysqlPipeline(object):
                 retweet_id varchar(20),
                 ip varchar(100),
                 PRIMARY KEY (id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"""
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4""".format(keywords)
         self.cursor.execute(sql)
 
     def open_spider(self, spider):
@@ -183,7 +185,7 @@ class MysqlPipeline(object):
         keys = ', '.join(data.keys())
         values = ', '.join(['%s'] * len(data))
         sql = """INSERT INTO {table}({keys}) VALUES ({values}) ON
-                     DUPLICATE KEY UPDATE""".format(table='weibo',
+                     DUPLICATE KEY UPDATE""".format(table=keywords,
                                                     keys=keys,
                                                     values=values)
         update = ','.join([" {key} = {key}".format(key=key) for key in data])
