@@ -28,6 +28,8 @@ def save_settings():
                 line = 'CONTAIN_TYPE = {}\n'.format((CONTAIN_TYPE.get()))
             elif 'REGION' in line:
                 line = 'REGION = [\'{}\']\n'.format(REGION.get())
+            elif 'FURTHER_THRESHOLD' in line:
+                line = 'FURTHER_THRESHOLD = {}\n'.format(FURTHER_THRESHOLD.get())
             elif 'START_DATE' in line:
                 line = 'START_DATE = \'{}\'\n'.format(START_DATE.get())
             elif 'END_DATE' in line:
@@ -112,7 +114,7 @@ START_DATE_frame.grid(row=3, column=0, sticky="ew")  # Change the row and column
 START_DATE_label = tk.Label(START_DATE_frame, text="START_DATE:", font=my_font)
 START_DATE_label.pack(side="left")
 START_DATE = tk.StringVar()
-date_entry = DateEntry(START_DATE_frame, textvariable=START_DATE, font=my_font, background='darkblue', foreground='white', borderwidth=2)
+date_entry = DateEntry(START_DATE_frame, textvariable=START_DATE, font=my_font, background='darkblue', foreground='white', borderwidth=2,date_pattern='yyyy-mm-dd')
 default_date = datetime.datetime.strptime(settings.START_DATE, '%Y-%m-%d').date()
 date_entry.set_date(default_date)
 date_entry.pack(side="left", fill="x", expand=True)
@@ -122,10 +124,19 @@ END_DATE_frame.grid(row=3, column=1, sticky="ew")  # Change the row and column a
 END_DATE_label = tk.Label(END_DATE_frame, text="END_DATE:", font=my_font)
 END_DATE_label.pack(side="left")
 END_DATE = tk.StringVar()
-date_entry = DateEntry(END_DATE_frame, textvariable=END_DATE, font=my_font, background='darkblue', foreground='white', borderwidth=2)
+date_entry = DateEntry(END_DATE_frame, textvariable=END_DATE, font=my_font, background='darkblue', foreground='white', borderwidth=2,date_pattern='yyyy-mm-dd')
 default_date = datetime.datetime.strptime(settings.END_DATE, '%Y-%m-%d').date()
 date_entry.set_date(default_date)
 date_entry.pack(side="left", fill="x", expand=True)
+
+FURTHER_THRESHOLD_frame = tk.Frame(root)
+FURTHER_THRESHOLD_frame.grid(row=4, column=0, sticky="ew")
+FURTHER_THRESHOLD_label = tk.Label(FURTHER_THRESHOLD_frame, text="FURTHER_THRESHOLD:", font=my_font)
+FURTHER_THRESHOLD_label.pack(side="left")
+FURTHER_THRESHOLD = tk.StringVar()
+entry4 = tk.Entry(FURTHER_THRESHOLD_frame,textvariable=FURTHER_THRESHOLD,font=my_font)
+entry4.insert(0, settings.FURTHER_THRESHOLD)  # Set the default value
+entry4.pack(side="left", fill="x", expand=True)
 
 pipelines = [
     'weibo.pipelines.CsvPipeline',
@@ -136,7 +147,7 @@ pipelines = [
 ]
 
 pipeline_entries = []
-row = 4
+row = 5
 var_dict = {}
 
 for pipeline in pipelines:
