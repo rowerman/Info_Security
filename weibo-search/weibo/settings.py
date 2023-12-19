@@ -27,9 +27,8 @@ ITEM_PIPELINES = {
 # 如'keyword_list.txt'，txt文件中每个关键词占一行
 KEYWORD_LIST = ['原神 雷电将军']  # 或者 KEYWORD_LIST = 'keyword_list.txt'
 # 去除每个元素中间的空格
-
+KEYWORD_LIST = [re.sub(r'\s+', '', keyword) for keyword in KEYWORD_LIST]
 keywords = '_'.join(KEYWORD_LIST)
-print(keywords)
 # 要搜索的微博类型，0代表搜索全部微博，1代表搜索全部原创微博，2代表热门微博，3代表关注人微博，4代表认证用户微博，5代表媒体微博，6代表观点微博
 WEIBO_TYPE = 1
 # 筛选结果微博中必需包含的内容，0代表不筛选，获取全部微博，1代表搜索包含图片的微博，2代表包含视频的微博，3代表包含音乐的微博，4代表包含短链接的微博
