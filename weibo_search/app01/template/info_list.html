@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Info List</title>
+</head>
+<body>
+    <h1>Info List</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>BID</th>
+                <th>User ID</th>
+                <th>Screen Name</th>
+                <th>Text</th>
+                <th>Article URL</th>
+                <th>Topics</th>
+                <th>At Users</th>
+                <th>Pics</th>
+                <th>Video URL</th>
+                <th>Location</th>
+                <th>Created At</th>
+                <th>Source</th>
+                <th>Attitudes Count</th>
+                <th>Comments Count</th>
+                <th>Reposts Count</th>
+                <th>Retweet ID</th>
+                <th>IP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.bid }}</td>
+                    <td>{{ item.user_id }}</td>
+                    <td>{{ item.screen_name }}</td>
+                    <td>{{ item.text }}</td>
+                    <td>{{ item.article_url }}</td>
+                    <td>{{ item.topics }}</td>
+                    <td>{{ item.at_users }}</td>
+                    <td>{{ item.pics }}</td>
+                    <td>{{ item.video_url }}</td>
+                    <td>{{ item.location }}</td>
+                    <td>{{ item.created_at }}</td>
+                    <td>{{ item.source }}</td>
+                    <td>{{ item.attitudes_count }}</td>
+                    <td>{{ item.comments_count }}</td>
+                    <td>{{ item.reposts_count }}</td>
+                    <td>{{ item.retweet_id }}</td>
+                    <td>{{ item.ip }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

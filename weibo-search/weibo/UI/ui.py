@@ -6,7 +6,10 @@ import re
 import subprocess
 import datetime
 from tkcalendar import DateEntry
-from weibo import settings
+
+sys.path.append("..") 
+
+import settings
 
 # Import settings module
 sys.path.insert(0, '../settings.py')  # replace with the path to your settings.py
