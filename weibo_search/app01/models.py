@@ -22,4 +22,4 @@ class YourModel(models.Model):
 
     class Meta:
         # db_table = 'your_table_name'  # 指定表名，从前端获取
-        db_table = '原神迪卢克'  # 指定表名
+        db_table = '甘肃'  # 指定表名
