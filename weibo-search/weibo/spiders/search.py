@@ -373,10 +373,10 @@ class SearchSpider(scrapy.Spider):
                     './/div[@class="from"]/a[1]/@href').extract_first(
                 ).split('/')[-1].split('?')[0]
                 weibo['bid'] = bid
-                weibo['user_id'] = info[0].xpath(
+                weibo['userid'] = info[0].xpath(
                     'div[2]/a/@href').extract_first().split('?')[0].split(
                     '/')[-1]
-                weibo['screen_name'] = info[0].xpath(
+                weibo['screenname'] = info[0].xpath(
                     'div[2]/a/@nick-name').extract_first()
                 txt_sel = sel.xpath('.//p[@class="txt"]')[0]
                 retweet_sel = sel.xpath('.//div[@class="card-comment"]')
@@ -408,7 +408,7 @@ class SearchSpider(scrapy.Spider):
                 weibo['text'] = txt_sel.xpath(
                     'string(.)').extract_first().replace('\u200b', '').replace(
                     '\ue627', '')
-                weibo['article_url'] = self.get_article_url(txt_sel)
+                weibo['articleurl'] = self.get_article_url(txt_sel)
                 weibo['location'] = self.get_location(txt_sel)
                 if weibo['location']:
                     weibo['text'] = weibo['text'].replace(
@@ -416,7 +416,7 @@ class SearchSpider(scrapy.Spider):
                 weibo['text'] = weibo['text'][2:].replace(' ', '')
                 if is_long_weibo:
                     weibo['text'] = weibo['text'][:-4]
-                weibo['at_users'] = self.get_at_users(txt_sel)
+                weibo['atusers'] = self.get_at_users(txt_sel)
                 weibo['topics'] = self.get_topics(txt_sel)
                 reposts_count = sel.xpath(
                     './/a[@action-type="feed_list_forward"]/text()').extract()
@@ -429,23 +429,23 @@ class SearchSpider(scrapy.Spider):
                         "请在 https://github.com/dataabc/weibo-search 查看文档，以解决问题，"
                     )
                     raise CloseSpider()
-                weibo['reposts_count'] = reposts_count[
+                weibo['repostscount'] = reposts_count[
                     0] if reposts_count else '0'
                 comments_count = sel.xpath(
                     './/a[@action-type="feed_list_comment"]/text()'
                 ).extract_first()
                 comments_count = re.findall(r'\d+.*', comments_count)
-                weibo['comments_count'] = comments_count[
+                weibo['commentscount'] = comments_count[
                     0] if comments_count else '0'
                 attitudes_count = sel.xpath(
                     './/a[@action-type="feed_list_like"]/button/span[2]/text()').extract_first()
                 attitudes_count = re.findall(r'\d+.*', attitudes_count)
-                weibo['attitudes_count'] = attitudes_count[
+                weibo['attitudescount'] = attitudes_count[
                     0] if attitudes_count else '0'
                 created_at = sel.xpath(
                     './/div[@class="from"]/a[1]/text()').extract_first(
                 ).replace(' ', '').replace('\n', '').split('前')[0]
-                weibo['created_at'] = util.standardize_date(created_at)
+                weibo['createdat'] = util.standardize_date(created_at)
                 source = sel.xpath('.//div[@class="from"]/a[2]/text()'
                                    ).extract_first()
                 weibo['source'] = source if source else ''
@@ -468,11 +468,11 @@ class SearchSpider(scrapy.Spider):
                     video_url = 'http:' + video_url
                 if not retweet_sel:
                     weibo['pics'] = pics
-                    weibo['video_url'] = video_url
+                    weibo['videourl'] = video_url
                 else:
                     weibo['pics'] = ''
-                    weibo['video_url'] = ''
-                weibo['retweet_id'] = ''
+                    weibo['videourl'] = ''
+                weibo['retweetid'] = ''
                 if retweet_sel and retweet_sel[0].xpath(
                         './/div[@node-type="feed_list_forwardContent"]/a[1]'):
                     retweet = WeiboItem()
@@ -485,15 +485,15 @@ class SearchSpider(scrapy.Spider):
                     info = retweet_sel[0].xpath(
                         './/div[@node-type="feed_list_forwardContent"]/a[1]'
                     )[0]
-                    retweet['user_id'] = info.xpath(
+                    retweet['userid'] = info.xpath(
                         '@href').extract_first().split('/')[-1]
-                    retweet['screen_name'] = info.xpath(
+                    retweet['screenname'] = info.xpath(
                         '@nick-name').extract_first()
                     retweet['text'] = retweet_txt_sel.xpath(
                         'string(.)').extract_first().replace('\u200b',
                                                              '').replace(
                         '\ue627', '')
-                    retweet['article_url'] = self.get_article_url(
+                    retweet['articleurl'] = self.get_article_url(
                         retweet_txt_sel)
                     retweet['location'] = self.get_location(retweet_txt_sel)
                     if retweet['location']:
@@ -502,38 +502,38 @@ class SearchSpider(scrapy.Spider):
                     retweet['text'] = retweet['text'][2:].replace(' ', '')
                     if is_long_retweet:
                         retweet['text'] = retweet['text'][:-4]
-                    retweet['at_users'] = self.get_at_users(retweet_txt_sel)
+                    retweet['atusers'] = self.get_at_users(retweet_txt_sel)
                     retweet['topics'] = self.get_topics(retweet_txt_sel)
                     reposts_count = retweet_sel[0].xpath(
                         './/ul[@class="act s-fr"]/li[1]/a[1]/text()'
                     ).extract_first()
                     reposts_count = re.findall(r'\d+.*', reposts_count)
-                    retweet['reposts_count'] = reposts_count[
+                    retweet['repostscount'] = reposts_count[
                         0] if reposts_count else '0'
                     comments_count = retweet_sel[0].xpath(
                         './/ul[@class="act s-fr"]/li[2]/a[1]/text()'
                     ).extract_first()
                     comments_count = re.findall(r'\d+.*', comments_count)
-                    retweet['comments_count'] = comments_count[
+                    retweet['commentscount'] = comments_count[
                         0] if comments_count else '0'
                     attitudes_count = retweet_sel[0].xpath(
                         './/a[@class="woo-box-flex woo-box-alignCenter woo-box-justifyCenter"]//span[@class="woo-like-count"]/text()'
                     ).extract_first()
                     attitudes_count = re.findall(r'\d+.*', attitudes_count)
-                    retweet['attitudes_count'] = attitudes_count[
+                    retweet['attitudescount'] = attitudes_count[
                         0] if attitudes_count else '0'
                     created_at = retweet_sel[0].xpath(
                         './/p[@class="from"]/a[1]/text()').extract_first(
                     ).replace(' ', '').replace('\n', '').split('前')[0]
-                    retweet['created_at'] = util.standardize_date(created_at)
+                    retweet['createdat'] = util.standardize_date(created_at)
                     source = retweet_sel[0].xpath(
                         './/p[@class="from"]/a[2]/text()').extract_first()
                     retweet['source'] = source if source else ''
                     retweet['pics'] = pics
-                    retweet['video_url'] = video_url
-                    retweet['retweet_id'] = ''
+                    retweet['videourl'] = video_url
+                    retweet['retweetid'] = ''
                     yield {'weibo': retweet, 'keyword': keyword}
-                    weibo['retweet_id'] = retweet['id']
+                    weibo['retweetid'] = retweet['id']
                 weibo["ip"] = self.get_ip(bid)
                 print(weibo)
                 yield {'weibo': weibo, 'keyword': keyword}
