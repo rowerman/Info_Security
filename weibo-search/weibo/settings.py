@@ -13,7 +13,7 @@ DEFAULT_REQUEST_HEADERS = {
     'Accept':
     'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-US;q=0.7',
-    'cookie': 'SINAGLOBAL=5405838591644.184.1702822333476; SCF=Aq1XFWAOXv91H3ICSRTOXugqPRPguMYdTaC0r1Dk4PAO5e3n3qmiIjm8O62YYrvDuL4pmyQGG0_0BLoKbadqcmI.; SUB=_2A25Ie3NeDeRhGeFG71AY8y7Jwj6IHXVr-YqWrDV8PUNbmtANLU3bkW9NeZIyMxtbBeDnC8whS48XPMv77kCmfzhp; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW7jG_-OAuMlSIZQqMJvJ075JpX5KMhUgL.FoMRShz4e05f1Kz2dJLoIp7LxKML1KBLBKnLxKqL1hnLBoMN1hBE1Ke7SK.E; ALF=1705414670; ULV=1702992813122:3:3:3:662537945585.7683.1702992813118:1702879600162; XSRF-TOKEN=pGZi--8Ae5hz7jOJ4cvnE5Ux; WBPSESS=sVVCqKTXEXkM-rwvkK_5OrlRgVIP6-v0DxzuEwCyHyXbWptwDIzy7JAay6ozF2i471TM-d7SXGYvlgHdGYoC_u4qXVRK12go40CxmNd-h0npZRNUInwNRao8KlveG3lv1-t3CdYUh_I1joJvDaTfvQ=='
+    'cookie': 'SINAGLOBAL=5405838591644.184.1702822333476; ULV=1702992813122:3:3:3:662537945585.7683.1702992813118:1702879600162; SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WW7jG_-OAuMlSIZQqMJvJ075JpX5KMhUgL.FoMRShz4e05f1Kz2dJLoIp7LxKML1KBLBKnLxKqL1hnLBoMN1hBE1Ke7SK.E; ALF=1706085362; SCF=Aq1XFWAOXv91H3ICSRTOXugqPRPguMYdTaC0r1Dk4PAOP1_mbOnvUQh7XYYKEQt7QhrAy8xl6ZWav7SgP1EjhdA.; SUB=_2A25IjU6kDeRhGeFG71AY8y7Jwj6IHXVr485srDV8PUNbmtAGLXDCkW9NeZIyMzuaEx202moJDfivNsVMIdmZyapc; WBPSESS=sVVCqKTXEXkM-rwvkK_5OrlRgVIP6-v0DxzuEwCyHyXbWptwDIzy7JAay6ozF2i471TM-d7SXGYvlgHdGYoC_r4Gp303F8_3oKe3ATLFY6rThJivAm9534TTKNgLHTVce9Etl29V8prDHnuu87xHXQ==; XSRF-TOKEN=VWlaEEk1CXKwXfjZyTdxpLOS'
 }
 ITEM_PIPELINES = {
     'weibo.pipelines.DuplicatesPipeline': 300,
@@ -25,7 +25,7 @@ ITEM_PIPELINES = {
 }
 # 要搜索的关键词列表，可写多个, 值可以是由关键词或话题组成的列表，也可以是包含关键词的txt文件路径，
 # 如'keyword_list.txt'，txt文件中每个关键词占一行
-KEYWORD_LIST = ['甘肃']  # 或者 KEYWORD_LIST = 'keyword_list.txt'
+KEYWORD_LIST = ['詹姆斯']  # 或者 KEYWORD_LIST = 'keyword_list.txt'
 # 去除每个元素中间的空格
 KEYWORD_LIST = [re.sub(r'\s+', '', keyword) for keyword in KEYWORD_LIST]
 keywords = '_'.join(KEYWORD_LIST)
@@ -37,7 +37,7 @@ CONTAIN_TYPE = 0
 # 具体支持的地名见region.py文件，注意只支持省或直辖市的名字，省下面的市名及直辖市下面的区县名不支持，不筛选请用“全部”
 REGION = ['全部']
 # 搜索的起始日期，为yyyy-mm-dd形式，搜索结果包含该日期
-START_DATE = '2023-12-18'
+START_DATE = '2023-11-18'
 # 搜索的终止日期，为yyyy-mm-dd形式，搜索结果包含该日期
 END_DATE = '2023-12-20'
 # 进一步细分搜索的阈值，若结果页数大于等于该值，则认为结果没有完全展示，细分搜索条件重新搜索以获取更多微博。数值越大速度越快，也越有可能漏掉微博；数值越小速度越慢，获取的微博就越多。
