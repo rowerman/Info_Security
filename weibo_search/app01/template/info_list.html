@@ -4,6 +4,36 @@
     <title>Info List</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #6c757d;
+            font-weight: bold;
+            padding: 20px;
+        }
+        .table {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+        }
+        th {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+        }
+        .modal-content {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+        }
+        .modal-footer {
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 <body>
 <div class="container mt-5">
@@ -74,6 +104,8 @@
     </div>
 </div>
 
+<canvas id="myChart"></canvas>
+
 
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
 <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
@@ -95,6 +127,26 @@ $(document).ready(function() {
       var modal = $(this)
       modal.find('.modal-body').text(recipient)
     })
+});
+
+// Convert Django template variables to JavaScript variables
+var dates = [{% for item in daily_counts %}"{{ item.date }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+var counts = [{% for item in daily_counts %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+// Create chart
+var ctx = document.getElementById('myChart').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: dates,
+        datasets: [{
+            label: 'Daily post count',
+            data: counts,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    }
 });
 
 </script>
