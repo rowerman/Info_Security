@@ -19,7 +19,3 @@ class YourModel(models.Model):
     reposts_count = models.IntegerField()
     retweet_id = models.CharField(max_length=20)
     ip = models.CharField(max_length=100)
-
-    class Meta:
-        # db_table = 'your_table_name'  # 指定表名，从前端获取
-        db_table = '甘肃'  # 指定表名

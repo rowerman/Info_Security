@@ -12,10 +12,11 @@
     </tr>
     {% for index, value in data %}
     <tr>
-      <td>{{ index }}</td>
+      <td><a href="http://127.0.0.1:8000/info/list/{{ index }}">{{ index }}</a></td>
       <td>{{ value }}</td>
     </tr>
     {% endfor %}
   </table>
 </body>
 </html>
+

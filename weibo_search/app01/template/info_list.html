@@ -1,13 +1,192 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Data and IP Data Display</title>
+    <title>Info List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            color: #6c757d;
+            font-weight: bold;
+            padding: 20px;
+        }
+        .table {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+        }
+        th {
+            background-color: #6c757d;
+            color: white;
+        }
+        .btn {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+        }
+        .modal-content {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+        }
+        .modal-footer {
+            background-color: #f8f9fa;
+        }
+    </style>
 </head>
 <body>
-  <h1>Data and IP Data Display</h1>
-  <h2>Data:</h2>
-  <p>{{ data }}</p>
-  <h2>IP Data:</h2>
-  <p>{{ ip_data }}</p>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Info List</h1>
+    <div style="overflow-x: auto;">
+        <table id="tb" class="table table-striped table-bordered">
+            <thead>
+            <tr style="font-size: 18px; color: black; font-weight: bold;">
+                <th>ID</th>
+                <th>BID</th>
+                <th>User ID</th>
+                <th>Screen Name</th>
+                <th>Text</th>
+                <th>Topics</th>
+                <th>Created At</th>
+                <th>Source</th>
+                <th>Attitudes Count</th>
+                <th>Comments Count</th>
+                <th>Reposts Count</th>
+                <th>Retweet ID</th>
+                <th>IP</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in data %}
+            <tr style="font-size: 15px; color: black;">
+                <td >{{ item.0 }}</td>
+                <td>{{ item.1 }}</td>
+                <td>{{ item.2 }}</td>
+                <td>{{ item.3 }}</td>
+                <td>
+                    <button type="button" class="btn btn-primary" style="font-size: 10px;" data-toggle="modal"
+                            data-target="#exampleModal" data-whatever="{{ item.4 }}">查看
+                    </button>
+                </td>
+                <td>{{ item.6 }}</td>
+                <td>{{ item.11 }}</td>
+                <td>{{ item.12 }}</td>
+                <td>{{ item.13 }}</td>
+                <td>{{ item.14 }}</td>
+                <td>{{ item.15 }}</td>
+                <td>{{ item.16 }}</td>
+                <td>{{ item.17 }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Text Content</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 这里是模态窗口的内容，你可以用 JavaScript 来更改它 -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<canvas id="myChart1"></canvas>
+<div style="width: 700px; height: 700px;">
+    <canvas id="myChart2"></canvas>
+</div>
+
+
+
+
+
+
+<script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+
+<script>
+$(document).ready(function() {
+    $('#tb').DataTable({
+        "pageLength": 5  //每页显示5行
+    });
+
+    // 当模态窗口打开时，更改其内容
+    $('#exampleModal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget) // Button that triggered the modal
+      var recipient = button.data('whatever') // Extract info from data-* attributes
+      var modal = $(this)
+      modal.find('.modal-body').text(recipient)
+    })
+});
+
+// Convert Django template variables to JavaScript variables
+var dates = [{% for item in date_data %}"{{ item.0 }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+var counts = [{% for item in date_data %}{{ item.1 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+// Create chart
+var ctx = document.getElementById('myChart1').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: dates,
+        datasets: [{
+            label: 'Daily post count',
+            data: counts,
+            fill: false,
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    }
+});
+
+// Convert Django template variables to JavaScript variables
+var labels = [{% for item in ip_data %}"{{ item.0 }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+var data = [{% for item in ip_data %}{{ item.1 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+
+// Create chart
+var ctx = document.getElementById('myChart2').getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: labels,
+        datasets: [{
+            data: data,
+            backgroundColor: [
+                // These are example colors. You can add as many as you need.
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ]
+        }]
+    }
+});
+
+
+</script>
+
+
 </body>
+
 </html>
+
+

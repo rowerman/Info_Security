@@ -1,3 +1,5 @@
+from django.db.models import Count
+from django.db.models.functions import TruncDate
 from django.shortcuts import render, HttpResponse
 from .models import YourModel
 from django.apps import apps
@@ -5,7 +7,7 @@ import pymysql
 from decimal import Decimal
 
 def info_list(request, word):
-    db = pymysql.connect(host='localhost', user='root', password='123456', database='weibo')
+    db = pymysql.connect(host='localhost', user='root', password='ZTH7452135', database='weibo')
     cursor = db.cursor()
     # 获取表名叫word的表的数据量
     cursor.execute('select * from %s'%word)
@@ -14,16 +16,21 @@ def info_list(request, word):
     # 统计每个表不同ip值的数量，将值和数量存进ip_data
     cursor.execute('select ip, count(*) from %s group by ip'%word)
     ip_data = cursor.fetchall()
+
+    cursor.execute('SELECT DATE(createdat), COUNT(*) FROM %s GROUP BY DATE(createdat)' % word)
+    date_data = cursor.fetchall()
+
+
     # 关闭数据库连接
     db.close()
 
-    return render(request, 'info_list.html', {'data': data, 'ip_data': ip_data})
+    return render(request, 'info_list.html', {'data': data, 'ip_data': ip_data,'date_data':date_data})
 
 def heat(request):
     
     # 计算每个表的数据量，进行排序
     data = []
-    db = pymysql.connect(host='localhost', user='root', password='123456', database='weibo')
+    db = pymysql.connect(host='localhost', user='root', password='ZTH7452135', database='weibo')
     cursor = db.cursor()
     # 遍历数据库里的所有表名，存进tables_list
     cursor.execute('show tables')
