@@ -1,31 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Info List</title>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+    <script src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
 
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
     <style>
         body {
             background-color: #f8f9fa;
-            font-family: Arial, sans-serif;
+            font-family: 'Roboto', sans-serif;
         }
         h1 {
-            color: #6c757d;
-            font-weight: bold;
+            color: #4a5568;
+            font-weight: 500;
             padding: 20px;
         }
         .table {
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
         }
         th {
-            background-color: #6c757d;
+            background-color: #4a5568;
             color: white;
         }
         .btn {
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
+            background-color: #4a5568;
+            color: white;
         }
         .modal-content {
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15)!important;
@@ -33,35 +42,53 @@
         .modal-footer {
             background-color: #f8f9fa;
         }
+        th {
+        white-space: nowrap;
+    }
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <h1 class="text-center mb-4">Info List</h1>
+
+
+<h1 class="text-center mb-4">具体信息分析</h1>
+<div style="width: 1200px; margin: 0 auto; background-color: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); border-radius: 4px; padding: 20px;">
+    <div style="width: 900px; height: 900px; margin: 0 auto;">
+        <canvas id="myChart1"></canvas>
+        <h2 class="text-center mb-4" style="margin-top: 40px;">每日帖子数变化曲线图</h2>
+    </div>
+    <div style="width: 700px; height: 700px; margin: 0 auto; margin-top: -160px; margin-bottom: 80px;">
+        <canvas id="myChart2"></canvas>
+        <h2 class="text-center mb-4" style="margin-top: 40px; margin-bottom: 40px;">10个最热地区帖子数统计</h2>
+    </div>
+</div>
+
+
+<div id="main" style="width: 1200px; height: 1200px; margin: 0 auto"></div>
+
+
+<div style="width: 1200px; margin: 0 auto; background-color: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); border-radius: 10px; padding: 20px;">
+
     <div style="overflow-x: auto;">
         <table id="tb" class="table table-striped table-bordered">
             <thead>
             <tr style="font-size: 18px; color: black; font-weight: bold;">
-                <th>ID</th>
-                <th>BID</th>
-                <th>User ID</th>
-                <th>Screen Name</th>
-                <th>Text</th>
-                <th>Topics</th>
-                <th>Created At</th>
-                <th>Source</th>
-                <th>Attitudes Count</th>
-                <th>Comments Count</th>
-                <th>Reposts Count</th>
-                <th>Retweet ID</th>
-                <th>IP</th>
+                <th>帖子ID</th>
+                <th>用户ID</th>
+                <th>用户名</th>
+                <th>帖子内容</th>
+                <th>话题</th>
+                <th>时间</th>
+                <th>来源</th>
+                <th>点赞数</th>
+                <th>评论数</th>
+                <th>转发数</th>
+                <th>地址</th>
             </tr>
             </thead>
             <tbody>
             {% for item in data %}
             <tr style="font-size: 15px; color: black;">
-                <td >{{ item.0 }}</td>
-                <td>{{ item.1 }}</td>
+                <td>{{ item.0 }}</td>
                 <td>{{ item.2 }}</td>
                 <td>{{ item.3 }}</td>
                 <td>
@@ -75,7 +102,6 @@
                 <td>{{ item.13 }}</td>
                 <td>{{ item.14 }}</td>
                 <td>{{ item.15 }}</td>
-                <td>{{ item.16 }}</td>
                 <td>{{ item.17 }}</td>
             </tr>
             {% endfor %}
@@ -103,15 +129,6 @@
         </div>
     </div>
 </div>
-
-<canvas id="myChart1"></canvas>
-<div style="width: 700px; height: 700px;">
-    <canvas id="myChart2"></canvas>
-</div>
-
-
-
-
 
 
 <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.5.1.js"></script>
@@ -147,7 +164,7 @@ var myChart = new Chart(ctx, {
     data: {
         labels: dates,
         datasets: [{
-            label: 'Daily post count',
+            label: '日帖子数统计',
             data: counts,
             fill: false,
             borderColor: 'rgb(75, 192, 192)',
@@ -160,30 +177,208 @@ var myChart = new Chart(ctx, {
 var labels = [{% for item in ip_data %}"{{ item.0 }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
 var data = [{% for item in ip_data %}{{ item.1 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
 
-// Create chart
+// 将标签和数据配对
+var pairs = labels.map(function(label, i) {
+    return { label: label, data: data[i] };
+}).filter(function(pair) {
+    return pair.label;  // 过滤掉空标签
+});
+
+// 按照数据的大小排序
+pairs.sort(function(a, b) {
+    return b.data - a.data;
+});
+
+// 取出最高的10个
+var top10 = pairs.slice(0, 10);
+
+// 重新分离标签和数据
+var top10Labels = top10.map(function(pair) {
+    return pair.label;
+});
+var top10Data = top10.map(function(pair) {
+    return pair.data;
+});
+
+// 创建饼状图
 var ctx = document.getElementById('myChart2').getContext('2d');
 var myChart = new Chart(ctx, {
     type: 'pie',
     data: {
-        labels: labels,
+        labels: top10Labels,
         datasets: [{
-            data: data,
+            data: top10Data,
             backgroundColor: [
-                // These are example colors. You can add as many as you need.
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
                 'rgba(255, 206, 86, 0.2)',
                 'rgba(75, 192, 192, 0.2)',
                 'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
+                'rgba(255, 159, 64, 0.2)',
+                'rgba(255, 0, 0, 0.2)',     // 新的颜色
+                'rgba(0, 255, 0, 0.2)',     // 新的颜色
+                'rgba(0, 0, 255, 0.2)',     // 新的颜色
+                'rgba(255, 255, 0, 0.2)'    // 新的颜色
             ]
         }]
+    },
+    options: {
+    title: {
+      display: true,
+      text: "Top 10 Provinces by Data" // 添加标题文本
     }
+  }
 });
+
+
 
 
 </script>
 
+<script type="text/javascript">
+
+      var myChart = echarts.init(document.getElementById("main"));
+
+      var labels = [{% for item in ip_data %}"{{ item.0 }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
+      var data = [{% for item in ip_data %}{{ item.1 }}{% if not forloop.last %}, {% endif %}{% endfor %}];
+var dataString = data.map(String);
+
+// 各省份的地图json文件
+var provinces = [];
+
+// 初始化全国地图
+loadMap("/static/china.json", "china");
+
+function loadMap(mapCode, name) {
+  $.get(mapCode, function (data) {
+    // 使用 HTTP GET 请求从服务器加载数据
+    echarts.registerMap(name, data); // 注册可用地图
+
+    var provinceData = {
+  "北京市": getDataByLabel("北京"),
+  "天津市": getDataByLabel("天津"),
+  "河北省": getDataByLabel("河北"),
+  "山西省": getDataByLabel("山西"),
+  "内蒙古自治区": getDataByLabel("内蒙古"),
+  "辽宁省": getDataByLabel("辽宁"),
+  "吉林省": getDataByLabel("吉林"),
+  "黑龙江省": getDataByLabel("黑龙江"),
+  "上海市": getDataByLabel("上海"),
+  "江苏省": getDataByLabel("江苏"),
+  "浙江省": getDataByLabel("浙江"),
+  "安徽省": getDataByLabel("安徽"),
+  "福建省": getDataByLabel("福建"),
+  "江西省": getDataByLabel("江西"),
+  "山东省": getDataByLabel("山东"),
+  "河南省": getDataByLabel("河南"),
+  "湖北省": getDataByLabel("湖北"),
+  "湖南省": getDataByLabel("湖南"),
+  "广东省": getDataByLabel("广东"),
+  "广西壮族自治区": getDataByLabel("广西"),
+  "海南省": getDataByLabel("海南"),
+  "重庆市": getDataByLabel("重庆"),
+  "四川省": getDataByLabel("四川"),
+  "贵州省": getDataByLabel("贵州"),
+  "云南省": getDataByLabel("云南"),
+  "西藏自治区": getDataByLabel("西藏"),
+  "陕西省": getDataByLabel("陕西"),
+  "甘肃省": getDataByLabel("甘肃"),
+  "青海省": getDataByLabel("青海"),
+  "宁夏回族自治区": getDataByLabel("宁夏"),
+  "新疆维吾尔自治区": getDataByLabel("新疆"),
+  "香港特别行政区": getDataByLabel("中国香港"),
+  "澳门特别行政区": getDataByLabel("中国澳门"),
+  "台湾省": getDataByLabel("中国台湾"),
+};
+
+    function getDataByLabel(label) {
+      for (var i = 0; i < labels.length; i++) {
+        if (labels[i] === label) {
+          return dataString[i];
+        }
+      }
+      return null;
+    }
+
+    var option = {
+      tooltip: {
+        trigger: 'item',
+        formatter: function (params) {
+          if (provinceData.hasOwnProperty(params.name)) {
+            return provinceData[params.name];
+          } else {
+            return params.name;
+          }
+        }
+      },
+      series: [
+        {
+          name: "MAP",
+          type: "map",
+          mapType: name,
+          selectedMode: false, // 是否允许选中多个区域
+          data: provinces,
+          itemStyle: {
+            emphasis: { // 鼠标悬停时的样式
+              areaColor: '#CC99CC' // 你想要的颜色
+            }
+          }
+        },
+      ],
+    };
+
+    // 使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option);
+  });
+}
+
+var provinceNameToShortName = {
+  "北京市": "北京",
+  "天津市": "天津",
+  "上海市": "上海",
+  "重庆市": "重庆",
+  "河北省": "河北",
+  "山西省": "山西",
+  "辽宁省": "辽宁",
+  "吉林省": "吉林",
+  "黑龙江省": "黑龙江",
+  "江苏省": "江苏",
+  "浙江省": "浙江",
+  "安徽省": "安徽",
+  "福建省": "福建",
+  "江西省": "江西",
+  "山东省": "山东",
+  "河南省": "河南",
+  "湖北省": "湖北",
+  "湖南省": "湖南",
+  "广东省": "广东",
+  "海南省": "海南",
+  "四川省": "四川",
+  "贵州省": "贵州",
+  "云南省": "云南",
+  "陕西省": "陕西",
+  "甘肃省": "甘肃",
+  "青海省": "青海",
+  "台湾省": "台湾",
+  "内蒙古自治区": "内蒙古",
+  "广西壮族自治区": "广西",
+  "西藏自治区": "西藏",
+  "宁夏回族自治区": "宁夏",
+  "新疆维吾尔自治区": "新疆",
+  "香港特别行政区": "香港",
+  "澳门特别行政区": "澳门"
+};
+
+myChart.on('click', function (params) {
+    var provinceName = params.name;  // 获取点击的省份名称
+    var shortProvinceName = provinceNameToShortName[provinceName];  // 从字典中获取短名称
+    if (shortProvinceName) {  // 如果找到了短名称
+        var dataTable = $('#tb').DataTable();  // 获取 DataTables 实例
+        dataTable.search(shortProvinceName).draw();  // 在 DataTables 中搜索短名称
+    }
+});
+
+</script>
 
 </body>
 

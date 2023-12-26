@@ -2,21 +2,77 @@
 <html>
 <head>
   <title>Data Display</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  h1 {
+      text-align: center;
+      color: #333;
+      padding: 20px 0;
+    }
+</style>
 </head>
 <body>
-  <h1>Data Display</h1>
-  <table>
-    <tr>
-      <th>Index</th>
-      <th>Value</th>
-    </tr>
-    {% for index, value in data %}
-    <tr>
-      <td><a href="http://127.0.0.1:8000/info/list/{{ index }}">{{ index }}</a></td>
-      <td>{{ value }}</td>
-    </tr>
-    {% endfor %}
-  </table>
+  <h1>关键词热度排行</h1>
+<div style="width: 1200px; margin: 0 auto; background-color: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); border-radius: 4px; padding: 20px;">
+    <canvas id="myChart"></canvas>
+</div>
+
+
+  <script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var labels = [{% for index, value in data %}'{{ index }}'{% if not forloop.last %},{% endif %}{% endfor %}];
+    var data = [{% for index, value in data %}{{ value }}{% if not forloop.last %},{% endif %}{% endfor %}];
+
+    // 根据排名设置颜色
+    var backgroundColors = data.map(function(item, index) {
+      if (index === 0) return 'rgba(255, 223, 0, 0.6)'; // 金色，加入透明度
+      else if (index === 1) return 'rgba(192, 192, 192, 0.6)'; // 银色，加入透明度
+      else if (index === 2) return 'rgba(205, 127, 50, 0.6)'; // 铜色，加入透明度
+      else return 'rgba(75, 192, 192, 0.2)';
+    });
+
+    var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Scores',
+            data: data,
+            backgroundColor: backgroundColors,
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+            barThickness: 50
+        }]
+    },
+    options: {
+        indexAxis: 'y',
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    font: {
+                        size: 20, // 修改字体大小
+                        weight: 'bold', // 加粗字体
+                    }
+                }
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+
+        },
+        onClick: function(event, elements) {
+            if (elements.length > 0) {
+                var index = elements[0].index;
+                var label = this.data.labels[index];
+                window.location.href = 'http://127.0.0.1:8000/info/list/' + label;
+            }
+        }
+    }
+});
+
+  </script>
 </body>
 </html>
-
