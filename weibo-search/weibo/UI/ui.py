@@ -45,40 +45,40 @@ def execute_commands():
 '''
 def save_settings():
     flag = True
-
     with open('../settings.py', 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
-    with open('../settings.py', 'w', encoding='utf-8') as f:
-        for line in lines:
-            if 'DOWNLOAD_DELAY' in line:
-                line = 'DOWNLOAD_DELAY = {}\n'.format(DOWNLOAD_DELAY.get())
-            elif 'DEFAULT_REQUEST_HEADERS' in line and 'cookie' in line:
-                line = re.sub(r"'cookie': '.*?'", "'cookie': '{}'".format(cookie.get()), line)
-            elif 'KEYWORD_LIST1' in line and flag:
-                flag = False
-                line = 'KEYWORD_LIST1 = [\'{}\']\n'.format(KEYWORD_LIST1.get())
-            elif 'WEIBO_TYPE' in line:
-                line = 'WEIBO_TYPE = {}\n'.format(WEIBO_TYPE.get())
-            elif 'CONTAIN_TYPE' in line:
-                line = 'CONTAIN_TYPE = {}\n'.format((CONTAIN_TYPE.get()))
-            elif 'REGION' in line:
-                line = 'REGION = [\'{}\']\n'.format(REGION.get())
-            elif 'FURTHER_THRESHOLD' in line:
-                line = 'FURTHER_THRESHOLD = {}\n'.format(FURTHER_THRESHOLD.get())
-            elif 'START_DATE' in line:
-                line = 'START_DATE = \'{}\'\n'.format(START_DATE.get())
-            elif 'END_DATE' in line:
-                line = 'END_DATE = \'{}\'\n'.format(END_DATE.get())
-            for pipeline in pipelines:  # Change here, loop over all pipelines, not just the ones with entries
-                if pipeline in line:
-                    if var_dict[pipeline].get():
-                        entry = next((e for p, e in pipeline_entries if p == pipeline), None)
-                        priority = '    \'{}\': {}'.format(pipeline, entry.get() if entry else 1)
-                        line = re.sub(r"#?\s*'{}': \d+".format(pipeline), priority, line)
-                    else:
-                        line = re.sub(r"#?\s*'{}': \d+".format(pipeline), '#    \'{}\': 1'.format(pipeline), line)
-            f.write(line)
+    new_lines = []
+    for line in lines:
+        if 'DOWNLOAD_DELAY' in line:
+            line = 'DOWNLOAD_DELAY = {}\n'.format(DOWNLOAD_DELAY.get())
+        elif 'DEFAULT_REQUEST_HEADERS' in line and 'cookie' in line:
+            line = re.sub(r"'cookie': '.*?'", "'cookie': '{}'".format(cookie.get()), line)
+        elif 'KEYWORD_LIST1' in line and flag:
+            flag = False
+            line = 'KEYWORD_LIST1 = [\'{}\']\n'.format(KEYWORD_LIST1.get())
+        elif 'WEIBO_TYPE' in line:
+            line = 'WEIBO_TYPE = {}\n'.format(WEIBO_TYPE.get())
+        elif 'CONTAIN_TYPE' in line:
+            line = 'CONTAIN_TYPE = {}\n'.format((CONTAIN_TYPE.get()))
+        elif 'REGION' in line:
+            line = 'REGION = [\'{}\']\n'.format(REGION.get())
+        elif 'FURTHER_THRESHOLD' in line:
+            line = 'FURTHER_THRESHOLD = {}\n'.format(FURTHER_THRESHOLD.get())
+        elif 'START_DATE' in line:
+            line = 'START_DATE = \'{}\'\n'.format(START_DATE.get())
+        elif 'END_DATE' in line:
+            line = 'END_DATE = \'{}\'\n'.format(END_DATE.get())
+        for pipeline in pipelines:
+            if pipeline in line:
+                if var_dict[pipeline].get():
+                    entry = next((e for p, e in pipeline_entries if p == pipeline), None)
+                    priority = '    \'{}\': {}'.format(pipeline, entry.get() if entry else 1)
+                    line = re.sub(r"#?\s*'{}': \d+".format(pipeline), priority, line)
+                else:
+                    line = re.sub(r"#?\s*'{}': \d+".format(pipeline), '#    \'{}\': 1'.format(pipeline), line)
+        new_lines.append(line)
+
     value = var_dict.get('weibo.pipelines.MysqlPipeline')
     if value :
         mysql_host = mysql_entries[0][0].get()
@@ -86,24 +86,24 @@ def save_settings():
         mysql_user = mysql_entries[2][0].get()
         mysql_password = mysql_entries[3][0].get()
         mysql_database = mysql_entries[4][0].get()
-        with open('../settings.py', 'r',encoding='utf-8') as file:
-            lines = file.readlines()
-        for i, line in enumerate(lines):
+        for i, line in enumerate(new_lines):
             if 'MYSQL_HOST' in line:
-                lines[i] = f"MYSQL_HOST = '{mysql_host}'\n"
+                new_lines[i] = f"MYSQL_HOST = '{mysql_host}'\n"
             elif 'MYSQL_PORT' in line:
-                lines[i] = f"MYSQL_PORT = {mysql_port}\n"
+                new_lines[i] = f"MYSQL_PORT = {mysql_port}\n"
             elif 'MYSQL_USER' in line:
-                lines[i] = f"MYSQL_USER = '{mysql_user}'\n"
+                new_lines[i] = f"MYSQL_USER = '{mysql_user}'\n"
             elif 'MYSQL_PASSWORD' in line:
-                lines[i] = f"MYSQL_PASSWORD = '{mysql_password}'\n"
+                new_lines[i] = f"MYSQL_PASSWORD = '{mysql_password}'\n"
             elif 'MYSQL_DATABASE' in line:
-                lines[i] = f"MYSQL_DATABASE = '{mysql_database}'\n"
-        with open('../settings.py', 'w',encoding='utf-8') as file:
-            file.writelines(lines)
+                new_lines[i] = f"MYSQL_DATABASE = '{mysql_database}'\n"
+
+    with open('../settings.py', 'w', encoding='utf-8') as f:
+        f.writelines(new_lines)
 
     importlib.reload(settings)  # Reload the settings module
     messagebox.showinfo("Info", "Settings saved")
+
 def update_frame_size(event):
     canvas.itemconfig(frame_id, width=canvas.winfo_width(), height=canvas.winfo_height())
 
@@ -220,10 +220,10 @@ entry4.insert(0, settings.FURTHER_THRESHOLD)  # Set the default value
 entry4.pack(side="left", fill="x", expand=True)
 
 pipelines = [
-    '存储为Csv文件',
-    '存储在Mysql数据库中',
-    '存储在Mongo数据库中',
-    '爬取数据时下载图片',
+    'weibo.pipelines.CsvPipeline',
+    'weibo.pipelines.MysqlPipeline',
+    'weibo.pipelines.MongoPipeline',
+    'pipelines.MyImagesPipeline',
 ]
 
 pipeline_entries = []
@@ -248,7 +248,7 @@ for pipeline in pipelines:
     button.grid_remove()  # Initially hide the button
 
     # Create five entries for 'weibo.pipelines.CsvPipeline'
-    if pipeline == '存储在Mysql数据库中':
+    if pipeline == 'weibo.pipelines.MysqlPipeline':
         mysql_entries = []
         for i, mysql_label in enumerate(['MYSQL_HOST', 'MYSQL_PORT', 'MYSQL_USER', 'MYSQL_PASSWORD', 'MYSQL_DATABASE']):
             label = tk.Label(frame, text=mysql_label, font=my_font,bg="lightgrey",width=30)
@@ -264,11 +264,11 @@ for pipeline in pipelines:
                    label=label):  # Use default arguments to capture the current pipeline, entry, button and label
         if var.get():
             entry.grid()  # Show the entry when the checkbox is checked
-            if pipeline == '爬取数据时下载图片':
+            if pipeline == 'weibo.pipelines.MyImagesPipeline':
                 button.grid()  # Show the button when the specific checkbox is checked
                 label.grid()  # Show the label when the specific checkbox is checked
             # Show the five entries and their labels when the 'weibo.pipelines.CsvPipeline' checkbox is checked
-            if pipeline == '存储在Mysql数据库中':
+            if pipeline == 'weibo.pipelines.MysqlPipeline':
                 for mysql_entry, mysql_label in mysql_entries:
                     mysql_entry.grid()
                     mysql_label.grid()
@@ -278,7 +278,7 @@ for pipeline in pipelines:
             button.grid_remove()  # Hide the button when the checkbox is unchecked
             label.grid_remove()  # Hide the label when the checkbox is unchecked
             # Hide the five entries and their labels when the 'weibo.pipelines.CsvPipeline' checkbox is unchecked
-            if pipeline == '存储在Mysql数据库中':
+            if pipeline == 'weibo.pipelines.MysqlPipeline':
                 for mysql_entry, mysql_label in mysql_entries:
                     mysql_entry.grid_remove()
                     mysql_label.grid_remove()
